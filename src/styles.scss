@@ -1,0 +1,33 @@
+body {
+    background-color: #ddd;
+    margin-top: 20px;
+    display: flex;
+    // align-items: center;
+    // flex-flow: row wrap;
+    // justify-content: space-between;
+    button {
+        margin-right: 15px;
+    }
+    div {
+        display: flex;
+    }
+    img {
+        width: 60px;
+        margin: 10px;
+    }
+    .main-container {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        justify-content: space-around;
+      }
+      .centered-list {
+        background: tomato;
+        flex-direction: column;
+        padding: 5px;
+        margin-top: 10px;
+      }
+}
