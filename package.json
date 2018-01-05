@@ -12,7 +12,7 @@
     "prod": "webpack -p",
     "postinstall": "elm-package install -y && elm-test init",
     "gh-publish-help": "https://gist.github.com/cobyism/4730490",
-    "gh-publish": "npm run prod && git subtree push --prefix dist origin gh-pages"
+    "gh-publish": "npm run prod && git add dist && git commit -m \"Update dist for publish\" && git subtree push --prefix dist origin gh-pages"
   },
   "repository": {
     "type": "git",
@@ -46,6 +46,7 @@
   "dependencies": {
     "bootstrap": "4.0.0-beta.2",
     "loglevel": "^1.6.0",
-    "say": "^0.14.0"
+    "say": "^0.14.0",
+    "sweetalert2": "^7.3.3"
   }
 }
