@@ -66,7 +66,10 @@ type Msg
     | InputWord Int String
     | InputSentence Int String
     | InputTest Int String
-    | DoAction
+    | StartTest
+    | StartEdit
+    | StartCheck
+    | ClearList
     | Speak Model Int
 
 
@@ -123,21 +126,18 @@ update msg model =
                     Array.set index updatedItem model.words
             }
                 ! []
-
-        DoAction ->
-            let
-                mode =
-                    case model.mode of
-                        Test ->
-                            Check
-
-                        Edit ->
-                            Test
-
-                        Check ->
-                            Edit
-            in
-            { model | mode = mode } ! []
+        
+        StartTest ->
+            { model | mode = Test } ! []
+        
+        StartEdit ->
+            { model | mode = Edit } ! []
+        
+        StartCheck ->
+            { model | mode = Check } ! []
+        
+        ClearList ->
+            { model | words = Array.fromList [emptyWord] } ! []
 
         Speak model index ->
             let
@@ -171,11 +171,11 @@ view model =
                 [ style
                     [ ( "flex-direction", "column" )
                     , ("align-items", "center")
+                    , ("margin", "1em 0 0 0")
                     ]
                 ]
                 (wordInputList model ++ blankEndInput model)
             , actionButtons model
-            -- , div [] [ actionButton model ]
             -- , div [] [ button [ onClick ShuffleIt ] [ text "Shuffle" ] ]
             ]
         ]
@@ -302,35 +302,41 @@ blankEndInput model =
 
 actionButtons : Model -> Html Msg
 actionButtons model =
-    div
-        [ style
-            [ ("align-items", "center")
-            , ("flex-direction", "column")
-            ]
-        ]
-        [ mainButton model
-        ]
-
-
-mainButton : Model -> Html Msg
-mainButton model =
     let
-        actionText =
+        actionTuples =
             case model.mode of
                 Edit ->
-                    "Start Test"
+                    [ (StartTest, "Start Test")
+                    , (ClearList, "Clear List")
+                    ]
 
                 Test ->
-                    "Check Answers"
+                    [(StartCheck, "Check Answers")]
 
                 Check ->
-                    "Back to Edit"
+                    [(StartEdit, "Back to Edit")]
+    
+    in
+    div
+        [ style
+            [ ("justify-content", "center")
+            , ("flex-direction", "row")
+            , ("margin", "1em 0 0 0")
+            ]
+        ]
+        (List.map createButton actionTuples)
+        
+createButton : (Msg, String) -> Html Msg
+createButton actionTuple =
+    let
+        (action, aText) = actionTuple
     in
     button 
-        [ onClick DoAction
+        [ onClick action
         , class "btn btn-outline-success"
         , style [ ( "margin-bottom", "3px" ) ]
-        ] [ text actionText ]
+        ] [ text aText ]
+    
 
 
 port speak : String -> Cmd msg

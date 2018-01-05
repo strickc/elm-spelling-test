@@ -36,7 +36,7 @@ var common = {
                 loader: 'file-loader?name=[name].[ext]'
             }, {
                 test: /\.js$/,
-                exclude: /node_modules/,
+                exclude: /(node_modules!elm-stuff)/,
                 use: {
                     loader: 'babel-loader',
                     options: {
