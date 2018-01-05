@@ -11,6 +11,7 @@
     "build": "webpack",
     "prod": "webpack -p",
     "postinstall": "elm-package install -y && elm-test init",
+    "gh-publish-help": "https://gist.github.com/cobyism/4730490",
     "gh-publish": "npm run prod && git subtree push --prefix dist origin gh-pages"
   },
   "repository": {
