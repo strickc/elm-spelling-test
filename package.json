@@ -10,7 +10,8 @@
     "dev": "webpack-dev-server --hot --port 3000 --colors",
     "build": "webpack",
     "prod": "webpack -p",
-    "postinstall": "elm-package install -y && elm-test init"
+    "postinstall": "elm-package install -y && elm-test init",
+    "gh-publish": "npm run prod && git subtree push --prefix dist origin gh-pages"
   },
   "repository": {
     "type": "git",
