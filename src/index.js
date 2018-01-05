@@ -10,7 +10,6 @@ var synth = window.speechSynthesis;
 var wordPending = '';
 app.ports.speak.subscribe(function(word) {
   var wasSpeaking = synth.speaking;
-  console.log(wasSpeaking, wordPending, (new Date()).getMilliseconds(), word);
   if (!wasSpeaking && !wordPending) {
     synth.speak(new SpeechSynthesisUtterance(word));
     wordPending = word;
