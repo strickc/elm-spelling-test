@@ -64,6 +64,7 @@ type Msg
     = ShuffleIt
     | ShuffledList (Array Word)
     | InputWord Int String
+    | InputSentence Int String
     | InputTest Int String
     | DoAction
     | Speak Model Int
@@ -96,6 +97,19 @@ update msg model =
             }
                 ! []
 
+
+        InputSentence index sen ->
+            let
+                relevantWord =
+                    wordGet model.words index
+
+            in
+            { model
+                | words = (Array.set index { relevantWord | sentence = sen } model.words)
+            }
+                ! []
+
+
         InputTest index word ->
             let
                 origItem =
@@ -127,39 +141,71 @@ update msg model =
 
         Speak model index ->
             let
-                arrVal =
-                    Array.get index model.words
+                construct word =
+                    if word.entry /= "" then
+                        if word.sentence == "" then
+                            word.entry
+                        else
+                            word.entry ++ ", as in " ++ word.sentence
+                    else
+                        ""
 
                 word =
-                    case arrVal of
-                        Just myWord ->
-                            myWord.entry
-
-                        Nothing ->
-                            ""
+                    construct (wordGet model.words index)
+                
             in
-            ( model, speak (wordGet model.words index |> .entry) )
+            ( model, speak word )
 
 
 view : Model -> Html Msg
 view model =
     div [ class "main-container" ]
         [ div [ class "centered-list" ]
-            [ Html.h3 [] [ text "Spelling Test" ]
-            , div []
-                [ actionButton model
-                ]
+            [ titleHeader
+            , div 
+                [ style 
+                    [ ( "max-width", "500px" ) ]
+                ] 
+                [ text (instructionText model.mode) ]
             , div
                 [ style
                     [ ( "flex-direction", "column" )
+                    , ("align-items", "center")
                     ]
                 ]
-                (wordInputList model
-                    ++ blankEndInput model
-                )
-            , div [] [ button [ onClick ShuffleIt ] [ text "Shuffle" ] ]
+                (wordInputList model ++ blankEndInput model)
+            , actionButtons model
+            -- , div [] [ actionButton model ]
+            -- , div [] [ button [ onClick ShuffleIt ] [ text "Shuffle" ] ]
             ]
         ]
+
+titleHeader : Html Msg
+titleHeader =
+    Html.h3 [ style [ ( "text-align", "center" ) ] ] [ text "Spelling Test" ]
+
+
+instructionText : Mode -> String
+instructionText mode =
+    case mode of
+        Edit ->
+            "Enter the list of words, and optional sentences to put them in context."
+        
+        Test ->
+            "Listen for the words and example sentence to be spoken, and then enter the correct spelling.  Good Luck!"
+
+        Check ->
+            "Green words were spelled correctly!  Red words were not.  Feel free to edit the words until you are confident you know the correct spelling."
+
+
+inputStyle : List (Html.Attribute Msg)
+inputStyle = 
+    [ class "form-control"
+    , style 
+        [ ( "margin", "0 3px 3px 0" )
+        , ( "max-width", "300px" )
+        ]
+    ]
 
 
 wordInputList : Model -> List (Html Msg)
@@ -181,12 +227,28 @@ wordInputList model =
 
 wordEdit : Model -> Int -> Word -> Html Msg
 wordEdit model index word =
+    let
+        visibility =
+            case index of
+                -1 -> "hidden"
+                
+                _ -> "unset"
+
+    in
     div []
         [ input
-            [ value word.entry
+            ([ value word.entry
             , onInput (InputWord index)
-            , onBlur (Speak model index)
-            ]
+            , style [ ("width", "35%")]
+            ] ++ inputStyle)
+            []
+        , input
+            ([ value word.sentence 
+            , onInput (InputSentence index)
+            , class "form-control"
+            , style [ ("width", "65%")]
+            , style [ ("visibility", visibility) ]
+            ] ++ inputStyle)
             []
         ]
 
@@ -195,11 +257,12 @@ wordTest : Model -> Int -> Word -> Html Msg
 wordTest model index word =
     div []
         [ input
-            [ onFocus (Speak model index)
+            ([ onFocus (Speak model index)
+            , onClick (Speak model index)
             , onInput (InputTest index)
-            ]
+            , style [ ("max-width", "300px")]
+            ] ++ inputStyle)
             []
-        , button [ onClick (Speak model index) ] [ text "Repeat" ]
         ]
 
 
@@ -217,13 +280,13 @@ wordCheck model index word =
     in
     div []
         [ input
-            [ value word.test
+            ([ value word.test
             , onFocus (Speak model index)
             , onInput (InputTest index)
             , style [ ( "background-color", bgColor ) ]
-            ]
+            ] ++ inputStyle)
             []
-        , text word.entry
+        , div [ style [ ("width", "150px") ] ] [ text word.entry ]
         ]
 
 
@@ -237,8 +300,20 @@ blankEndInput model =
             []
 
 
-actionButton : Model -> Html Msg
-actionButton model =
+actionButtons : Model -> Html Msg
+actionButtons model =
+    div
+        [ style
+            [ ("align-items", "center")
+            , ("flex-direction", "column")
+            ]
+        ]
+        [ mainButton model
+        ]
+
+
+mainButton : Model -> Html Msg
+mainButton model =
     let
         actionText =
             case model.mode of
@@ -251,7 +326,11 @@ actionButton model =
                 Check ->
                     "Back to Edit"
     in
-    button [ onClick DoAction ] [ text actionText ]
+    button 
+        [ onClick DoAction
+        , class "btn btn-outline-success"
+        , style [ ( "margin-bottom", "3px" ) ]
+        ] [ text actionText ]
 
 
 port speak : String -> Cmd msg
