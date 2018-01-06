@@ -53,8 +53,9 @@ var common = {
             }, {
                 test: /\.css$/,
                 exclude: [
-                    /elm-stuff/, /node_modules/
+                    /elm-stuff/
                 ],
+                include: /node_modules/,
                 loaders: ["style-loader", "css-loader"]
             }, {
                 test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,

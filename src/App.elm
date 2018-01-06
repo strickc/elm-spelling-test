@@ -71,6 +71,7 @@ type Msg
     | StartCheck
     | ClearList
     | Speak Model Int
+    | SwalResultOkCancel Bool
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -128,7 +129,10 @@ update msg model =
                 ! []
         
         StartTest ->
-            { model | mode = Test } ! []
+            { model
+            | mode = Test
+            , words = Array.map (\w -> { w | test = "" }) model.words
+            } ! []
         
         StartEdit ->
             { model | mode = Edit } ! []
@@ -137,7 +141,8 @@ update msg model =
             { model | mode = Check } ! []
         
         ClearList ->
-            { model | words = Array.fromList [emptyWord] } ! []
+            model
+            ! [ swalWithResult (SwalParams "Clear List?" "Do you want to clear the list?" "warning") ]
 
         Speak model index ->
             let
@@ -156,6 +161,22 @@ update msg model =
             in
             ( model, speak word )
 
+        SwalResultOkCancel ok ->
+            case ok of
+                True -> { model | words = Array.fromList [emptyWord] } ! []
+                False -> ( model, Cmd.none )
+            
+
+-- SUBSCRIPTIONS
+
+port swalResultOkCancel : (Bool -> msg) -> Sub msg
+
+subscriptions : Model -> Sub Msg                                                                                                                                                                                                                                                                                                        
+subscriptions model =
+  swalResultOkCancel SwalResultOkCancel
+
+
+-- VIEW
 
 view : Model -> Html Msg
 view model =
@@ -164,12 +185,14 @@ view model =
             [ titleHeader
             , div 
                 [ style 
-                    [ ( "max-width", "500px" ) ]
+                    [ ( "max-width", "500px" )
+                    , ( "display", "flex" ) ]
                 ] 
                 [ text (instructionText model.mode) ]
             , div
                 [ style
                     [ ( "flex-direction", "column" )
+                    , ( "display", "flex" )
                     , ("align-items", "center")
                     , ("margin", "1em 0 0 0")
                     ]
@@ -235,11 +258,13 @@ wordEdit model index word =
                 _ -> "unset"
 
     in
-    div []
+    div [ style [ ( "display", "flex" ) ] ]
         [ input
             ([ value word.entry
             , onInput (InputWord index)
-            , style [ ("width", "35%")]
+            , style
+                [ ("width", "35%")
+                ]
             ] ++ inputStyle)
             []
         , input
@@ -255,12 +280,15 @@ wordEdit model index word =
 
 wordTest : Model -> Int -> Word -> Html Msg
 wordTest model index word =
-    div []
+    div [ style [ ( "display", "flex" ) ] ]
         [ input
             ([ onFocus (Speak model index)
             , onClick (Speak model index)
             , onInput (InputTest index)
-            , style [ ("max-width", "300px")]
+            , style
+                [ ("max-width", "300px")
+                , ( "display", "flex" )
+                ]
             ] ++ inputStyle)
             []
         ]
@@ -278,7 +306,7 @@ wordCheck model index word =
             else
                 "lightcoral"
     in
-    div []
+    div [ style [ ( "display", "flex" ) ] ]
         [ input
             ([ value word.test
             , onFocus (Speak model index)
@@ -322,6 +350,7 @@ actionButtons model =
             [ ("justify-content", "center")
             , ("flex-direction", "row")
             , ("margin", "1em 0 0 0")
+            , ( "display", "flex" )
             ]
         ]
         (List.map createButton actionTuples)
@@ -337,6 +366,14 @@ createButton actionTuple =
         , style [ ( "margin-bottom", "3px" ) ]
         ] [ text aText ]
     
+-- Ports
 
+type alias SwalParams = 
+    { title : String
+    , text : String
+    , swalType : String
+    }
 
 port speak : String -> Cmd msg
+port swal : SwalParams -> Cmd msg
+port swalWithResult : SwalParams -> Cmd msg
