@@ -6,6 +6,12 @@ import Html.Attributes exposing (class, style, value)
 import Html.Events exposing (onBlur, onClick, onFocus, onInput)
 import Random exposing (Seed, generate)
 import Random.Array exposing (shuffle)
+import Dom exposing (focus, Id)
+import Task
+import Time
+import Process
+
+import Ordinal exposing (makeOrdinal)
 
 
 type alias Word =
@@ -59,6 +65,10 @@ wordGet arr index =
         Nothing ->
             emptyWord
 
+doFocus : Id -> Cmd Msg
+doFocus id =
+    Task.attempt FocusResult (Dom.focus id)
+
 
 type Msg
     = ShuffleIt
@@ -72,6 +82,7 @@ type Msg
     | ClearList
     | Speak Model Int
     | SwalResultOkCancel Bool
+    | FocusResult (Result Dom.Error ())
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -132,8 +143,11 @@ update msg model =
             { model
             | mode = Test
             , words = Array.map (\w -> { w | test = "" }) model.words
-            } ! []
-        
+            } ! [ doFocus "0word" ]
+
+        FocusResult result ->
+            ( model, Cmd.none )
+
         StartEdit ->
             { model | mode = Edit } ! []
         
@@ -146,12 +160,15 @@ update msg model =
 
         Speak model index ->
             let
+                num =
+                    "The " ++ makeOrdinal (index+1) ++ " word is, "
+
                 construct word =
                     if word.entry /= "" then
                         if word.sentence == "" then
-                            word.entry
+                            num ++ word.entry
                         else
-                            word.entry ++ ", as in " ++ word.sentence
+                            num ++ word.entry ++ ", as in " ++ word.sentence
                     else
                         ""
 
@@ -258,10 +275,12 @@ wordEdit model index word =
                 _ -> "unset"
 
     in
-    div [ style [ ( "display", "flex" ) ] ]
+    div [ style [ ( "display", "flex" ) ]
+        ]
         [ input
             ([ value word.entry
             , onInput (InputWord index)
+            , Html.Attributes.id (toString index ++ "word")
             , style
                 [ ("width", "35%")
                 ]
@@ -280,11 +299,13 @@ wordEdit model index word =
 
 wordTest : Model -> Int -> Word -> Html Msg
 wordTest model index word =
-    div [ style [ ( "display", "flex" ) ] ]
+    div [ style [ ( "display", "flex" ) ]
+        ]
         [ input
             ([ onFocus (Speak model index)
             , onClick (Speak model index)
             , onInput (InputTest index)
+            , Html.Attributes.id (toString index ++ "word")
             , style
                 [ ("max-width", "300px")
                 , ( "display", "flex" )
@@ -342,7 +363,7 @@ actionButtons model =
                     [(StartCheck, "Check Answers")]
 
                 Check ->
-                    [(StartEdit, "Back to Edit")]
+                    [(StartEdit, "Start at Beginning")]
     
     in
     div
