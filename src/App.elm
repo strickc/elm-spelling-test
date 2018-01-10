@@ -8,29 +8,10 @@ import Random exposing (Seed, generate)
 import Random.Array exposing (shuffle)
 import Dom exposing (focus, Id)
 import Task
-import Time
-import Process
 
 import Ordinal exposing (makeOrdinal)
+import Models exposing (Word, Mode(..), Model)
 
-
-type alias Word =
-    { entry : String
-    , test : String
-    , sentence : String
-    }
-
-
-type Mode
-    = Edit
-    | Test
-    | Check
-
-
-type alias Model =
-    { words : Array Word
-    , mode : Mode
-    }
 
 emptyWord : Word
 emptyWord =
