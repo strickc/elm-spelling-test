@@ -6,7 +6,7 @@
     "source-directories": [
         "src",
         "src/libs",
-        "src/View",
+        "src/Views",
         "src/ports",
         "src/major"
     ],
