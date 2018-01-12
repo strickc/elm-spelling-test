@@ -5,7 +5,10 @@
     "license": "ISC",
     "source-directories": [
         "src",
-        "src/libs"
+        "src/libs",
+        "src/View",
+        "src/ports",
+        "src/major"
     ],
     "exposed-modules": [],
     "dependencies": {

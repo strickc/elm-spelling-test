@@ -20,6 +20,3 @@ makeOrdinal n =
   in
     toString n ++ suffix
       
-
-
-
