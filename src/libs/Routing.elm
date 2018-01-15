@@ -13,7 +13,8 @@ import Models exposing (Route(..))
 matchers : Parser (Route -> a) a
 matchers =
     oneOf
-        [ map EditRoute (Debug.log "EditRoute" (s "edit"))
+        [ map EditRoute top
+        , map EditRoute (Debug.log "EditRoute" (s "edit"))
         , map TestRoute (s "test")
         , map CheckRoute (s "check")
         ]
