@@ -1,4 +1,4 @@
-module Models exposing (Mode(..), Model, Route(..), Word, emptyWord, startingWords, wordGet)
+module Models exposing (Model, Route(..), Word, emptyWord, startingWords, wordGet)
 
 import Array exposing (Array)
 
@@ -10,15 +10,15 @@ type alias Word =
     }
 
 
-type Mode
-    = Edit
-    | Test
-    | Check
+-- type Mode
+--     = Edit
+--     | Test
+--     | Check
 
 
 type alias Model =
     { words : Array Word
-    , mode : Mode
+    -- , mode : Mode
     , route : Route
     }
 

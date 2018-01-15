@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, style, value)
 import Html.Events exposing (onBlur, onClick, onFocus, onInput)
 import Array
 
-import Models exposing (Model, Word, Mode(..), Route(..), emptyWord, wordGet)
+import Models exposing (Model, Word, Route(..), emptyWord, wordGet)
 import Msgs exposing (Msg(..))
 import Routing exposing (paths)
 

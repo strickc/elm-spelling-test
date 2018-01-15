@@ -8,7 +8,7 @@ import Navigation
 import Task
 
 import Ordinal exposing (makeOrdinal)
-import Models exposing (Word, Mode(..), Model, Route(..), emptyWord, startingWords, wordGet)
+import Models exposing (Word, Model, Route(..), emptyWord, startingWords, wordGet)
 import Msgs exposing (Msg(..))
 import PortsIndex exposing (..)
 import Routing exposing (parseLocation)
