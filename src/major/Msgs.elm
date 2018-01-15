@@ -21,4 +21,6 @@ type Msg
     | FocusResult (Result Dom.Error ())
     | OnLocationChange Location
     | ChangeLocation String
+    | LinkAction String Msg
+    | NoOp
 

@@ -126,3 +126,9 @@ update msg model =
         
         ChangeLocation path ->
             ( model, Navigation.newUrl path )
+
+        LinkAction path message ->
+            ( Tuple.first (update message model), Navigation.newUrl path )
+
+        NoOp ->
+            ( model, Cmd.none )

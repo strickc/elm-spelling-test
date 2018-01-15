@@ -37,7 +37,7 @@ wordList model =
         , instructions = "Enter the list of words, you can also add an example sentence or phrase to put them in context."
         , wordDisplayFunc = wordEdit
         , actionButtons = 
-          [ (Just paths.test, Nothing, "Start Test")
+          [ (Just paths.test, Just StartTest, "Start Test")
           , (Nothing, Just ClearList, "Clear List")
           ]
         , model = model
@@ -47,7 +47,7 @@ wordList model =
     TestRoute ->
       makeWordList  
         { title = "Spelling Test"
-        , instructions = "Listen for the words and example sentence to be spoken, and then enter the correct spelling.  Good Luck!"
+        , instructions = "Click on eact text box to listen for the words and example sentence to be spoken, and then enter the correct spelling.  Good Luck!"
         , wordDisplayFunc = wordTest
         , actionButtons = [(Just paths.check, Nothing, "Check Answers")]
         , model = model
@@ -58,7 +58,7 @@ wordList model =
         { title = "Spelling Test"
         , instructions = "Green words were spelled correctly!  Red words were not.  Feel free to edit the words until you are confident you know the correct spelling."
         , wordDisplayFunc = wordCheck
-        , actionButtons = [(Just paths.edit, Nothing, "Start at Beginning!")]
+        , actionButtons = [(Just paths.edit, Nothing, "Start Over")]
         , model = model
         }
         
@@ -199,26 +199,19 @@ createButton buttonTuple =
     let
       (mPath, mMsg, aText) = buttonTuple
 
-      hrefAtts =
+      atts =
         case mPath of
           Just path ->
             [ Html.Attributes.href path
-            , Routing.onLinkClick (ChangeLocation path)
+            , Routing.onLinkClick (LinkAction path (Maybe.withDefault NoOp mMsg))
             ]
 
           Nothing ->
-            []
+            [ onClick (Maybe.withDefault NoOp mMsg) ]
 
-      clickAtts =
-        case mMsg of
-          Just m ->
-            [ onClick m ]
-
-          Nothing ->
-            []
     in
     button 
-        (hrefAtts ++ clickAtts ++
+        (atts ++
         [ class "btn btn-outline-success"
         , style [ ( "margin-bottom", "3px" ) ]
         ])
