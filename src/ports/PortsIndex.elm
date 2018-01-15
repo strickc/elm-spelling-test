@@ -1,4 +1,10 @@
-port module PortsIndex exposing (speak, swal, swalWithResult, SwalParams, swalResultOkCancel)
+port module PortsIndex exposing 
+    ( speak
+    , swal
+    , swalWithResult
+    , SwalParams
+    , swalResultOkCancel
+    )
 
 type alias SwalParams = 
     { title : String

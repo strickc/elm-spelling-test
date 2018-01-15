@@ -1,6 +1,7 @@
-module Models exposing (Word, Mode(..), Model, wordGet, emptyWord, startingWords)
+module Models exposing (Mode(..), Model, Route(..), Word, emptyWord, startingWords, wordGet)
 
 import Array exposing (Array)
+
 
 type alias Word =
     { entry : String
@@ -18,7 +19,15 @@ type Mode
 type alias Model =
     { words : Array Word
     , mode : Mode
+    , route : Route
     }
+
+
+type Route
+    = EditRoute
+    | TestRoute
+    | CheckRoute
+    | NotFoundRoute
 
 
 emptyWord : Word
@@ -36,7 +45,6 @@ startingWords =
         ]
 
 
-
 wordGet : Array Word -> Int -> Word
 wordGet arr index =
     case Array.get index arr of
@@ -45,4 +53,3 @@ wordGet arr index =
 
         Nothing ->
             emptyWord
-

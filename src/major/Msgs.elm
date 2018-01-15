@@ -1,6 +1,7 @@
 module Msgs exposing (..)
 
 import Array exposing (Array)
+import Navigation exposing (Location)
 import Dom exposing (focus, Id)
 
 import Models exposing (Model, Word)
@@ -18,4 +19,6 @@ type Msg
     | Speak Model Int
     | SwalResultOkCancel Bool
     | FocusResult (Result Dom.Error ())
+    | OnLocationChange Location
+    | ChangeLocation String
 

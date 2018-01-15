@@ -4,12 +4,14 @@ import Array exposing (Array)
 import Random exposing (Seed, generate)
 import Random.Array exposing (shuffle)
 import Dom exposing (focus, Id)
+import Navigation
 import Task
 
 import Ordinal exposing (makeOrdinal)
-import Models exposing (Word, Mode(..), Model, emptyWord, startingWords, wordGet)
+import Models exposing (Word, Mode(..), Model, Route(..), emptyWord, startingWords, wordGet)
 import Msgs exposing (Msg(..))
 import PortsIndex exposing (..)
+import Routing exposing (parseLocation)
 
 doFocus : Id -> Cmd Msg
 doFocus id =
@@ -72,7 +74,7 @@ update msg model =
         
         StartTest ->
             { model
-            | mode = Test
+            | route = TestRoute
             , words = Array.map (\w -> { w | test = "" }) model.words
             } ! [ doFocus "0word" ]
 
@@ -80,10 +82,11 @@ update msg model =
             ( model, Cmd.none )
 
         StartEdit ->
-            { model | mode = Edit } ! []
+            { model | route = EditRoute } ! []
+            -- { model | mode = Edit } ! []
         
         StartCheck ->
-            { model | mode = Check } ! []
+            { model | route = CheckRoute } ! []
         
         ClearList ->
             model
@@ -113,3 +116,13 @@ update msg model =
             case ok of
                 True -> { model | words = Array.fromList [emptyWord] } ! []
                 False -> ( model, Cmd.none )
+        
+        OnLocationChange location ->
+            let
+                newRoute =
+                    parseLocation location
+            in
+                ( { model | route = newRoute }, Cmd.none )
+        
+        ChangeLocation path ->
+            ( model, Navigation.newUrl path )

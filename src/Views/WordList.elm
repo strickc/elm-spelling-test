@@ -5,14 +5,17 @@ import Html.Attributes exposing (class, style, value)
 import Html.Events exposing (onBlur, onClick, onFocus, onInput)
 import Array
 
-import Models exposing (Model, Word, Mode(..), emptyWord, wordGet)
+import Models exposing (Model, Word, Mode(..), Route(..), emptyWord, wordGet)
 import Msgs exposing (Msg(..))
+import Routing exposing (paths)
+
+type alias Path = String
 
 type alias WordListParams = 
   { title : String
   , instructions : String
   , wordDisplayFunc : Model -> Int -> Word -> Html Msg
-  , actionButtons : List ( Msg, String )
+  , actionButtons : List ( Maybe Path, Maybe Msg, String )
   , model : Model
   }
 
@@ -27,35 +30,35 @@ inputStyle =
 
 wordList : Model -> Html Msg
 wordList model =
-  case model.mode of
-    Edit ->
+  case model.route of
+    EditRoute ->
       makeWordList
         { title = "Spelling Test"
         , instructions = "Enter the list of words, you can also add an example sentence or phrase to put them in context."
         , wordDisplayFunc = wordEdit
         , actionButtons = 
-          [ (StartTest, "Start Test")
-          , (ClearList, "Clear List")
+          [ (Just paths.test, Nothing, "Start Test")
+          , (Nothing, Just ClearList, "Clear List")
           ]
         , model = model
         }
     
 
-    Test ->
+    TestRoute ->
       makeWordList  
         { title = "Spelling Test"
         , instructions = "Listen for the words and example sentence to be spoken, and then enter the correct spelling.  Good Luck!"
         , wordDisplayFunc = wordTest
-        , actionButtons = [(StartCheck, "Check Answers")]
+        , actionButtons = [(Just paths.check, Nothing, "Check Answers")]
         , model = model
         }
 
-    Check ->
+    _ ->
       makeWordList  
         { title = "Spelling Test"
         , instructions = "Green words were spelled correctly!  Red words were not.  Feel free to edit the words until you are confident you know the correct spelling."
         , wordDisplayFunc = wordCheck
-        , actionButtons = [(StartEdit, "Start at Beginning")]
+        , actionButtons = [(Just paths.edit, Nothing, "Start at Beginning!")]
         , model = model
         }
         
@@ -171,15 +174,15 @@ wordCheck model index word =
 
 blankEndInput : Model -> (List (Html Msg))
 blankEndInput model =
-    case model.mode of
-        Edit ->
+    case model.route of
+        EditRoute ->
             [ wordEdit model -1 (emptyWord) ]
 
         _ ->
             []
 
 
-actionButtons : (List ( Msg, String )) -> Html Msg
+actionButtons : (List ( Maybe Path, Maybe Msg, String )) -> Html Msg
 actionButtons actionList =
     div
         [ style
@@ -191,13 +194,32 @@ actionButtons actionList =
         ]
         (List.map createButton actionList)
         
-createButton : (Msg, String) -> Html Msg
-createButton actionTuple =
+createButton : (Maybe Path, Maybe Msg, String) -> Html Msg
+createButton buttonTuple =
     let
-        (action, aText) = actionTuple
+      (mPath, mMsg, aText) = buttonTuple
+
+      hrefAtts =
+        case mPath of
+          Just path ->
+            [ Html.Attributes.href path
+            , Routing.onLinkClick (ChangeLocation path)
+            ]
+
+          Nothing ->
+            []
+
+      clickAtts =
+        case mMsg of
+          Just m ->
+            [ onClick m ]
+
+          Nothing ->
+            []
     in
     button 
-        [ onClick action
-        , class "btn btn-outline-success"
+        (hrefAtts ++ clickAtts ++
+        [ class "btn btn-outline-success"
         , style [ ( "margin-bottom", "3px" ) ]
-        ] [ text aText ]
+        ])
+        [ text aText ]
