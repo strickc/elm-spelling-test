@@ -31,19 +31,6 @@ inputStyle =
 wordList : Model -> Html Msg
 wordList model =
   case model.route of
-    EditRoute ->
-      makeWordList
-        { title = "Spelling Test"
-        , instructions = "Enter the list of words, you can also add an example sentence or phrase to put them in context."
-        , wordDisplayFunc = wordEdit
-        , actionButtons = 
-          [ (Just paths.test, Just StartTest, "Start Test")
-          , (Nothing, Just ClearList, "Clear List")
-          ]
-        , model = model
-        }
-    
-
     TestRoute ->
       makeWordList  
         { title = "Spelling Test"
@@ -53,12 +40,24 @@ wordList model =
         , model = model
         }
 
-    _ ->
+    CheckRoute ->
       makeWordList  
         { title = "Spelling Test"
         , instructions = "Green words were spelled correctly!  Red words were not.  Feel free to edit the words until you are confident you know the correct spelling."
         , wordDisplayFunc = wordCheck
         , actionButtons = [(Just paths.edit, Nothing, "Start Over")]
+        , model = model
+        }
+
+    _ ->
+      makeWordList
+        { title = "Spelling Test"
+        , instructions = "Enter the list of words, you can also add an example sentence or phrase to put them in context."
+        , wordDisplayFunc = wordEdit
+        , actionButtons = 
+          [ (Just paths.test, Just StartTest, "Start Test")
+          , (Nothing, Just ClearList, "Clear List")
+          ]
         , model = model
         }
         
